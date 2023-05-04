@@ -8,7 +8,7 @@ test:
 	poetry run pytest
 
 lint:
-	poetry run flake8 
+	poetry run flake8 page_analyzer
 
 PORT ?= 8000
 start:
