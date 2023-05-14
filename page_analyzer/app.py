@@ -27,11 +27,14 @@ def connect():
 
 
 def validate(url):
+    errors = []
     if not validators.url(url):
-        return 'Некорректный URL'
-    elif len(url) > 255:
-        return 'Длина URL не должна превышеть 255 символов'
-    return
+        errors.append('Некорректный URL')
+    if not url:
+        errors.append('URL обязателен')
+    if len(url) > 255:
+        errors.append('Длина URL не должна превышеть 255 символов')
+    return errors
 
 
 @app.route('/')
@@ -46,7 +49,8 @@ def urls():
         url = request.form.get('url')
         errors = validate(url)
         if errors:
-            flash(errors, 'danger')
+            for error in errors:
+                flash(error, 'danger')
             return redirect(url_for('index'))
         conn = connect()
         with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
@@ -83,5 +87,23 @@ def url_details(id):
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
         cursor.execute('SELECT * FROM urls WHERE id=%s', (id,))
         url = cursor.fetchone()
+    with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+        cursor.execute('SELECT * FROM url_checks WHERE url_id=(%s) \
+                       ORDER BY id DESC', (id,))
+        checks = cursor.fetchall()
     conn.close()
-    return render_template('url_details.html', url=url, messages=messages)
+    return render_template('url_details.html', url=url,
+                           checks=checks, messages=messages)
+
+
+@app.route('/urls/<id>/checks', methods=['POST'])
+def url_checks(id):
+    conn = connect()
+    with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+        cursor.execute('INSERT INTO url_checks \
+                       (url_id, created_at) VALUES (%s, %s)',
+                       (id, datetime.datetime.now()))
+    conn.commit()
+    conn.close()
+    flash('Страница успешно проверена', 'success')
+    return redirect(url_for('url_details', id=id))
