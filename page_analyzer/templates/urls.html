@@ -45,8 +45,8 @@
                 <tr>
                   <td>{{ url.id }}</td>
                   <td><a href="{{ url_for('url_details', id=url.id) }}">{{ url.name }}</a></td>
-                  <td>{{ url.created_at }}</td>
-                  <td></td>
+                  <td>{% if url.created_at %}{{ url.created_at }}{% endif %}</td>
+                  <td>{% if url.status_code %}{{ url.status_code }}{% endif %}</td>
                 </tr>
               {% endfor %}
               {% endif %}

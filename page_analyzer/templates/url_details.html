@@ -51,12 +51,12 @@
   </div>
 
     <h2 class="mt-5 mb-3">Проверки</h2>
-    <form method="post" action="/urls/1/checks">
+    <form method="post" action="/urls/{{ url.id }}/checks">
     <input type="submit" class="btn btn-primary" value="Запустить проверку">
     </form>
     
   <div>
-    <table class="table table-bordered table-hover mt-2" data-test="checks">
+    <table class="table table-bordered table-hover mt-2" data-test="url">
     <thead>
       <tr>
         <th>ID</th>
