@@ -7,7 +7,7 @@ ____
 ## About:
 Page analyzer is a small web-interface application for SEO quality assurance tests similar to [PageSpeed Insights](https://pagespeed.web.dev/).
 You can check out the application via link below
-[Page analyzer](python-project-83-production-ac21.up.railway.app)
+[Page analyzer](https://python-project-83-production-ac21.up.railway.app/)
 ____
 #### Minimum requirements:
 Python 3.9
@@ -22,8 +22,6 @@ To start gunicorn WSGI run:
 To start local dev server run:
 ```make dev```
 If you are going to run application locally make sure you put '.env' file in the root directory of the project. The file must contain local variables:
-```
-DATABASE_URL = {provider}://{user}:{password}@{host}:{port}/{db}
-SECRET_KEY = "..."
-```
+```DATABASE_URL = {provider}://{user}:{password}@{host}:{port}/{db}
+SECRET_KEY = "..."```
 
