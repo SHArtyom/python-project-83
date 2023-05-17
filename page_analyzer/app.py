@@ -71,7 +71,7 @@ def urls():
                 flash(error, 'danger')
             messages = get_flashed_messages(with_categories=True)
             return render_template('index.html', messages=messages,
-                                   input_url=input_url)
+                                   input_url=input_url), 422
         url = normalize_url(input_url)
         conn = connect()
         with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
