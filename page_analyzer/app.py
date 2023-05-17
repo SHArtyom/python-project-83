@@ -4,6 +4,7 @@ from psycopg2.extras import NamedTupleCursor
 from datetime import datetime as date
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
+from urllib.parse import urlsplit, urlunsplit
 import psycopg2
 import validators
 import os
@@ -31,11 +32,17 @@ def validate(url):
     errors = []
     if not validators.url(url):
         errors.append('Некорректный URL')
-    if not url:
+    elif not url:
         errors.append('URL обязателен')
-    if len(url) > 255:
-        errors.append('Длина URL не должна превышеть 255 символов')
+    elif len(url) > 255:
+        errors.append('URL превышает 255 символов')
     return errors
+
+
+def normalize_url(input_url):
+    url_parts = list(urlsplit(input_url))
+    normalized = [url_parts[0], url_parts[1], '', '', '']
+    return urlunsplit(normalized)
 
 
 def parse_content(content):
@@ -51,19 +58,21 @@ def parse_content(content):
 
 @app.route('/')
 def index():
-    messages = get_flashed_messages(with_categories=True)
-    return render_template('index.html', messages=messages)
+    return render_template('index.html')
 
 
 @app.route('/urls', methods=['GET', 'POST'])
 def urls():
     if request.method == 'POST':
-        url = request.form.get('url')
-        errors = validate(url)
+        input_url = request.form.get('url')
+        errors = validate(input_url)
         if errors:
             for error in errors:
                 flash(error, 'danger')
-            return redirect(url_for('index'))
+            messages = get_flashed_messages(with_categories=True)
+            return render_template('index.html', messages=messages,
+                                   input_url=input_url)
+        url = normalize_url(input_url)
         conn = connect()
         with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
             cursor.execute('SELECT * FROM urls WHERE name=(%s)', (url,))
@@ -94,8 +103,8 @@ def urls():
         return render_template('urls.html', url_list=url_list)
 
 
-@app.route('/urls/<id>', methods=['GET'])
-def url_details(id):
+@app.route('/urls/<int:id>', methods=['GET'])
+def url_details(id: int):
     messages = get_flashed_messages(with_categories=True)
     conn = connect()
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
@@ -110,8 +119,8 @@ def url_details(id):
                            checks=checks, messages=messages)
 
 
-@app.route('/urls/<id>/checks', methods=['POST'])
-def url_checks(id):
+@app.route('/urls/<int:id>/checks', methods=['POST'])
+def url_checks(id: int):
     conn = connect()
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
         cursor.execute('SELECT name FROM urls WHERE id=%s', (id,))
