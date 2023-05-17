@@ -16,15 +16,19 @@ Python 3.9
 Installed PostgreSQL 12.14
 #### Installation:
 Create database tables and structure:
+
 ```make init_db```
 
 Setup dependencies:
+
 ```make install```
 
 To start gunicorn WSGI run:
+
 ```make start```
 
 To start local dev server run:
+
 ```make dev```
 
 If you are going to run application locally make sure you put '.env' file in the root directory of the project. The file must contain local variables:
