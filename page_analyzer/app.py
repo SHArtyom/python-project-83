@@ -28,35 +28,33 @@ def index():
 
 @app.post('/urls')
 def urls():
-    if request.method == 'POST':
-        input_url = request.form.get('url')
-        errors = validate(input_url)
-        if errors:
-            for error in errors:
-                flash(error, 'danger')
-            messages = get_flashed_messages(with_categories=True)
-            return render_template('index.html', messages=messages,
-                                   input_url=input_url), 422
-        url = normalize_url(input_url)
-        existing_url = make_query_get('SELECT * FROM urls WHERE name=(%s)', url)
-        if existing_url:
-            flash(MSG_EXISTS, 'info')
-            id = existing_url.id
-            return redirect(url_for('url_details', id=id))
-        make_query_set('INSERT INTO urls (name, created_at) VALUES (%s, %s)',
-                       url, date.now())
-        id = make_query_get('SELECT * FROM urls WHERE name=(%s)', url).id
-        flash(MSG_ADDED, 'success')
+    input_url = request.form.get('url')
+    errors = validate(input_url)
+    if errors:
+        for error in errors:
+            flash(error, 'danger')
+        messages = get_flashed_messages(with_categories=True)
+        return render_template('index.html', messages=messages,
+                               input_url=input_url), 422
+    url = normalize_url(input_url)
+    existing_url = make_query_get('SELECT * FROM urls WHERE name=(%s)', url)
+    if existing_url:
+        flash(MSG_EXISTS, 'info')
+        id = existing_url.id
         return redirect(url_for('url_details', id=id))
+    make_query_set('INSERT INTO urls (name, created_at) VALUES (%s, %s)',
+                   url, date.now())
+    id = make_query_get('SELECT * FROM urls WHERE name=(%s)', url).id
+    flash(MSG_ADDED, 'success')
+    return redirect(url_for('url_details', id=id))
 
 
 @app.get('/urls')
 def get_urls():
-    query = 'SELECT DISTINCT ON (urls.id) urls.id, name, \
-             url_checks.created_at, status_code from urls \
-             LEFT JOIN url_checks on urls.id=url_checks.url_id \
-             ORDER BY urls.id DESC'
-    url_list = make_query_get(query, fetch='all')
+    url_list = make_query_get('SELECT DISTINCT ON (urls.id) urls.id, name, \
+                              url_checks.created_at, status_code from urls \
+                              LEFT JOIN url_checks on urls.id=url_id \
+                              ORDER BY urls.id DESC', fetch='all')
     return render_template('urls.html', url_list=url_list)
 
 
