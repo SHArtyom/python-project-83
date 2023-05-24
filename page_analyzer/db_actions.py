@@ -41,7 +41,7 @@ def get_url(search_by, value):
 
 
 def get_url_list():
-    query ='SELECT DISTINCT ON (urls.id) \
+    query = 'SELECT DISTINCT ON (urls.id) \
             urls.id, name, url_checks.created_at, status_code \
             FROM urls LEFT JOIN url_checks \
             ON urls.id=url_id \
