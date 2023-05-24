@@ -36,8 +36,8 @@ def get_check_data(url):
     try:
         response = requests.get(url)
         response.raise_for_status()
-    except requests.exceptions.RequestException:
-        return 1
+    except requests.exceptions.RequestException as e:
+        raise Exception(e)
     h1, title, description = parse_content(response.text)
     status_code = response.status_code
     return [status_code, h1, title, description]

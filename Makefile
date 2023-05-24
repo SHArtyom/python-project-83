@@ -23,4 +23,3 @@ db_create:
 schema-load:
 	psql page_seo < database.sql
 
-
